@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dbms-template-build">
+
+ <!-- ***************************************************
+               Gestione della base di dati
+      *************************************************** -->
+
+    <target name="db-create" depends="init" description="Crea la base di dati">
+        <sql   driver="org.postgresql.Driver"  
+               onerror="continue"
+               url="jdbc:postgresql:testdb"
+               userid="${db.username}"
+               password="${db.password}"
+               autocommit="true">
+            <classpath>
+                <path refid="driver.classpath" />
+            </classpath>            
+            create database ${ant.project.name};
+        </sql>
+    </target>
+    
+    <target name="db-create-tables" depends="init" description="Crea le tabelle nella base di dati">
+        <sql   driver="org.postgresql.Driver"  
+               onerror="continue"
+               url="jdbc:postgresql:${ant.project.name}"
+               userid="${db.username}"
+               password="${db.password}">
+            <classpath>
+                <path refid="driver.classpath" />
+            </classpath>             
+            <transaction src="${misc.dir}/${ant.project.name}.sql" />
+        </sql>
+    </target>
+
+    <target name="db-insert" depends="init" description="Effettua eventuali inserimenti aggiuntivi nella base di dati">
+        <sql   driver="org.postgresql.Driver"  
+               onerror="continue"
+               url="jdbc:postgresql:${ant.project.name}"
+               userid="${db.username}"
+               password="${db.password}">
+            <classpath>
+                <path refid="driver.classpath" />
+            </classpath>             
+            <transaction src="${misc.dir}/insert.sql" />
+        </sql>
+    </target>
+
+    <target name="db-drop" depends="init" description="Elimina la base di dati">
+        <sql   driver="org.postgresql.Driver"  
+               onerror="continue"
+               url="jdbc:postgresql:testdb"
+               userid="${db.username}"
+               password="${db.password}"
+               autocommit="true">
+            <classpath>
+                <path refid="driver.classpath" />
+            </classpath>             
+            drop database ${ant.project.name};
+        </sql>
+    </target>
+    
+    <target name="db-recreate" depends="db-drop, db-create, db-create-tables" description="Ricrea e riemplie la base di dati">
+    </target>
+
+</project>

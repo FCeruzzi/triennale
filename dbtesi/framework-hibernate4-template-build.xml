@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="framework-hibernate4-template-build">
+
+    <import file="./dbms-template-build.xml" />
+
+    <echo message="Versione di Hibernate: ${hibernate.ver}" />
+
+    <fileset id="hibernate.jars" dir="${lib.dir}/hibernate-${hibernate.ver}">
+        <include name="antlr-*.jar" />
+        <include name="commons-collections-*.jar" />
+        <include name="dom4j-*.jar" />
+        <include name="hibernate*.jar" />
+        <include name="hibernate-jpa*.jar" />
+        <include name="javassist*.jar" />
+        <include name="jboss-*.jar" />
+        <!-- <include name="c3p0-*.jar" />
+        <include name="mchange-*.jar" /> -->
+    </fileset>
+    
+    <echo message="Versione di Hibernate-annotations: ${hibernate-annotations.ver}" />
+
+    <fileset id="hibernate-annotations.jars" dir="${lib.dir}/hibernate-annotations-${hibernate-annotations.ver}">
+        <include name="hibernate-commons-annotations*.jar" />
+    </fileset>
+     
+    <echo message="Versione di Hibernate-tools: ${hibernate-tools.ver}" />
+
+    <fileset id="hibernate-tools.jars" dir="${lib.dir}/hibernate-tools-${hibernate-tools.ver}">
+        <include name="hibernate-tools*.jar" />
+        <include name="freemarker.jar" />
+        <include name="commons-logging-*.jar" />
+    </fileset>
+	
+	
+    <!-- ***************************************************
+             Target Specifici di Hibernate
+    *************************************************** -->
+
+    <target name="-init-tools-classpath" depends="-init-folders">
+        <path id="hibernate.tools.classpath">
+            <path refid="compile.classpath" />
+            <path refid="hibernate.classpath" />
+            <fileset refid="hibernate-tools.jars" />
+        </path>
+    </target>
+
+
+    <target name="-init-hibernate-tasks" depends="init, -init-tools-classpath">
+        <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" 
+                 classpathref="hibernate.tools.classpath" />        
+    </target>
+
+    <target name="schemaexport" depends="-init-hibernate-tasks, build">
+        <hibernatetool destdir="${misc.dir}">
+            <classpath>
+                <path location="${build.dir}"/>
+            </classpath>
+            <annotationconfiguration configurationfile="${conf.dir}/hibernate.cfg.xml"/> 
+            <hbm2ddl export="false" update="false" drop="false" format="true"
+                     outputfilename="${ant.project.name}.sql" />
+        </hibernatetool>
+    </target>
+
+    <target name="-prepare-hbm" depends="prepare">
+        <copy todir="${build.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.hbm.xml" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="-prepare-hbm-webapp" depends="prepare">
+        <copy todir="${build.webapp.classes.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.hbm.xml" />
+            </fileset>
+        </copy>
+    </target>
+
+</project>
+

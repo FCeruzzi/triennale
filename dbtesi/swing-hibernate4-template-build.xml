@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="swing-hibernate4-template-build">
+     
+ <!-- ***************************************************
+                    Importazioni
+      *************************************************** -->
+    
+    <import file="./swing-template-build.xml" />
+    
+    <import file="./framework-hibernate4-template-build.xml" />
+
+ <!-- ***************************************************
+                    Target Ridefiniti
+      *************************************************** -->
+        
+    <target name="-init-classpath" depends="-init-folders">
+        <property name="build.sysclasspath" value="ignore" />
+        <path id="driver.classpath">
+            <pathelement location="${lib.dir}/${driver.name}"/>
+            <pathelement location="${lib.dir}/${pool.name}"/>
+        </path>
+        <path id="hibernate.classpath">
+            <fileset refid="hibernate.jars" />
+            <fileset refid="hibernate-annotations.jars" />
+        </path>
+        <path id="compile.classpath">
+            <path refid="driver.classpath" />
+            <path refid="hibernate.classpath" />
+            <fileset dir="${lib.dir}" includes="slf4j-api-*.jar" />
+			<fileset dir="${lib.dir}" includes="commons-imaging-1.0-*.jar" />
+			<fileset dir="${lib.dir}" includes="jai*.jar" />
+			<fileset dir="${matlab.dir}" includes="engine*.jar" />
+            <pathelement location="${build.dir}" />
+        </path>
+        <path id="run.classpath">
+            <path refid="compile.classpath" />
+            <fileset dir="${lib.dir}" includes="logback-classic*.jar" />
+            <fileset dir="${lib.dir}" includes="logback-core*.jar" />
+			<fileset dir="${lib.dir}" includes="commons-imaging-1.0-*.jar" />
+			<fileset dir="${lib.dir}" includes="jai*.jar" />
+			<fileset dir="${matlab.dir}" includes="engine*.jar" />
+        </path>
+        <fileset id="run.jar.fileset" dir="${lib.dir}">        
+            <include name="slf4j-api-*.jar" />
+            <include name="logback-classic*.jar" />
+            <include name="logback-core*.jar" />
+			<include name="commons-imaging-1.0-*.jar" />
+			<include name="jai*.jar" />
+            <include name="${driver.name}" />
+            <include name="${pool.name}" />
+        </fileset>
+		<fileset id="run.jar.fileset.matlab" dir="${matlab.dir}">
+			<include name="engine*.jar" />
+		</fileset>
+        <path id="run.jar.classpath">
+            <fileset refid="run.jar.fileset" />
+			<fileset refid="run.jar.fileset.matlab" />
+            <fileset refid="hibernate.jars" />
+            <fileset refid="hibernate-annotations.jars" />
+        </path>
+        <path id="test.classpath">
+            <path refid="run.classpath" />
+            <pathelement location="${test.build.dir}" />
+            <pathelement location="${lib.dir}/junit.jar" />
+        </path>
+    </target> 
+    
+    <target name="compile" depends="prepare, -prepare-resources, -prepare-conf" description="compila il codice">
+        <javac srcdir="${src.dir}"
+               destdir="${build.dir}"
+               classpathref="compile.classpath" 
+               debug="${build.debug}"
+               debuglevel="${build.debuglevel}"
+               optimize="${build.optimize}">
+        </javac>
+    </target>
+
+    <target name="-init-build-files" depends="init">
+        <fileset id="build.file.templates" dir="..">
+            <include name="swing-hibernate4-template-build.xml" />
+            <include name="framework-hibernate4-template-build.xml" />
+            <include name="console-template-build.xml" />
+        </fileset>
+    </target>
+
+    <target name="dist" depends="rebuild, -init-version, jar, javadoc, -init-build-files" description="crea lo zip distribuibile">
+        <zip zipfile="${dist.dir}/${ant.project.name}-java-${major.version}.${minor.version}-build${build.number}.zip">
+            <!-- jar -->
+            <zipfileset dir="${dist.dir}" prefix="${ant.project.name}-java" includes="*.jar" />
+            <zipfileset prefix="${ant.project.name}-java/lib" refid="run.jar.fileset" />
+			<zipfileset prefix="${ant.project.name}-java/lib" refid="run.jar.fileset.matlab" />
+            <zipfileset prefix="${ant.project.name}-java/lib" refid="hibernate.jars" />
+            <zipfileset prefix="${ant.project.name}-java/lib" refid="hibernate-annotations.jars" />
+            <!-- sorgenti -->
+            <zipfileset dir="${src.dir}" prefix="${ant.project.name}-java/src" />
+            <!-- test -->
+            <zipfileset dir="${test.src.dir}" prefix="${ant.project.name}-java/test/" />
+            <!-- javadoc -->
+            <zipfileset dir="${javadoc.dir}" prefix="${ant.project.name}-java/javadoc" />
+            <!-- varie -->
+            <zipfileset dir="${misc.dir}" prefix="${ant.project.name}-java/varie" />
+            <!-- nbproject -->
+            <zipfileset dir="${nbproject.dir}" prefix="${ant.project.name}-java/nbproject" />
+            <!-- build -->
+            <zipfileset dir="." prefix="${ant.project.name}-java" includes="*.*" />
+            <zipfileset prefix="" refid="build.file.templates" />
+        </zip>
+    </target>
+ 
+</project>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="build" name="dbtesi">
+ 
+ <!-- ***************************************************
+            Importazione del template
+      *************************************************** -->
+
+    <import file="../swing-hibernate4-template-build.xml" />
+
+</project>
